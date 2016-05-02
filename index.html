@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Sd mpi by izabely-furtado</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Sd mpi</h1>
+        <h2>Laboratório de MPI</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/izabely-furtado/SD_MPI/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/izabely-furtado/SD_MPI/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/izabely-furtado/SD_MPI" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h2>
+<a id="relatório" class="anchor" href="#relat%C3%B3rio" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Relatório</h2>
+
+<h3>
+<a id="partes-modificadas-e-motivações" class="anchor" href="#partes-modificadas-e-motiva%C3%A7%C3%B5es" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Partes Modificadas e Motivações</h3>
+
+<p>O programa principal tem o nome de <strong>integral_mpi.c</strong>, os demais são a evolução do mesmo, cada parte indicada por seu próprio cabeçario.</p>
+
+<h3>
+<a id="nomeações-e-organização" class="anchor" href="#nomea%C3%A7%C3%B5es-e-organiza%C3%A7%C3%A3o" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Nomeações e Organização</h3>
+
+<p>O struct <strong>Targumentos</strong> foi definido como Limite, com sua respectiva função de criação. Além disso, foram renomeados por todo o código diversos argumentos e variáveis.</p>
+
+<p>Funções como <strong>AreaTrapezio</strong> e <strong>f(x)</strong> praticamente não foram modificadas, no entanto a de calculo da área foi dividida em duas funções, <strong>CalculaArea</strong> e <strong>ThreadCalculaArea</strong>, a primeira com o efetivo calculo da área e outra que chama esse calculo de área e altera a variável global. </p>
+
+<h3>
+<a id="mutex" class="anchor" href="#mutex" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mutex</h3>
+
+<p>Quanto a função <strong>ThreadCalculaArea</strong> é tratada, pois a alteração da variável global envolve mais de uma operação em baixo nível. </p>
+
+<p>Sendo assim, o processo executado por uma thread pode ser interrompido ou modificado pela intervenção de outra, causando assim um resultado de integral inválido.</p>
+
+<p>Enquanto uma altera o valor da variável global outra pode tentar alterar ao mesmo tempo, assim esse processo é serializado pelo mutex da seguinte forma:</p>
+
+<p>`//controlando área que pode haver condição de corrida</p>
+
+<pre><code>pthread_mutex_lock(&amp;lock);
+
+integral += area2; 
+
+pthread_mutex_unlock(&amp;lock);`
+</code></pre>
+
+<h3>
+<a id="criação-de-threads" class="anchor" href="#cria%C3%A7%C3%A3o-de-threads" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Criação de Threads</h3>
+
+<p>A criação de threads é feito de acordo com o número de processadores, esse número é obtido pela chamada de função <strong>get_nprocs()</strong>, que foi válida pela inclusão da biblioteca <strong></strong>.</p>
+
+<p>Foi criado um vetor de threads com o tamanho do número de núcleos existentes no computador e foi dado a cada thread um objetivo, uma área limitada para que essa thread pudesse calcular a função <strong>ThreadCalculaArea</strong> e finalmente cada uma dessas threads criadas foi startada.</p>
+
+<h3>
+<a id="main" class="anchor" href="#main" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Main</h3>
+
+<p>Chama as funções e calcula a área, seguindo esses passos:</p>
+
+<ul>
+<li>Verificar-se se houve falhas na inicialização das threads,</li>
+<li>São criadas as threads.</li>
+<li>É efetivamente calculada a área</li>
+<li>As threads são destruídas </li>
+<li>É encerrado o programa.</li>
+</ul>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
