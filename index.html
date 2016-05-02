@@ -128,8 +128,13 @@ pthread_mutex_unlock(&amp;lock);`
 <ul>
 <li>Verificar-se se houve falhas na inicialização das threads,</li>
 <li>São criadas as threads.</li>
-<li>É efetivamente calculada a área</li>
+<li>É inicializado o MPI</li>
+<li>É gerado o rank e o size</li>
+<li>É efetivamente calculada a área em cada rank</li>
 <li>As threads são destruídas </li>
+<li>É gerada a soma total de todas as ranks</li>
+<li>É impresso o resultado pelo rank 0</li>
+<li>O MPI é finalizado</li>
 <li>É encerrado o programa.</li>
 </ul>
       </section>
