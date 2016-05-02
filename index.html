@@ -39,9 +39,61 @@
 <h3>
 <a id="nomeações-e-organização" class="anchor" href="#nomea%C3%A7%C3%B5es-e-organiza%C3%A7%C3%A3o" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Nomeações e Organização</h3>
 
-<p>O struct <strong>Targumentos</strong> foi definido como Limite, com sua respectiva função de criação. Além disso, foram renomeados por todo o código diversos argumentos e variáveis.</p>
+<p>Há a definição de parametros de limite que necessitam ser divididos de forma balanceada para cada uma das CPUs, sendo assim, os limites foram gerados comparados com o <strong>rank</strong> pertencente a cada máquina e ao <strong>size</strong>, que corresponde ao número total de máquinas interligadas rodando o programa</p>
+
+<p>`Size e Rank no Main</p>
+
+<pre><code>    int size, rank;
+MPI_Comm_rank(MPI_COMM_WORLD, &amp;rank);
+MPI_Comm_size(MPI_COMM_WORLD, &amp;size);
+</code></pre>
+
+<p>`</p>
+
+<p>Isso foi calculado de forma a definir os limites locais em cada um dos rank</p>
+
+<p>`Limites</p>
+
+<pre><code>    larguraLocal = (B - A) / size;   
+
+aLocal = A + rank * larguraLocal;
+
+bLocal = aLocal + larguraLocal;
+
+nLocal = nDivi/size;
+</code></pre>
+
+<p>`
+Dado isso, para cada uma das maquinas envolvidas foi definido como Limite, com sua respectiva função de criação <strong>RankCalculaArea</strong>. Além disso, foram renomeados por todo o código diversos argumentos e variáveis.</p>
 
 <p>Funções como <strong>AreaTrapezio</strong> e <strong>f(x)</strong> praticamente não foram modificadas, no entanto a de calculo da área foi dividida em duas funções, <strong>CalculaArea</strong> e <strong>ThreadCalculaArea</strong>, a primeira com o efetivo calculo da área e outra que chama esse calculo de área e altera a variável global. </p>
+
+<h3>
+<a id="reduce" class="anchor" href="#reduce" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reduce</h3>
+
+<p>O função reduce da biblioteca MPI é usada de tal forma para que o calculo de cada área sea somada para que fosse impresso a área final encontrada da integral. Assim foram somados todos os <strong>local_sum</strong> e encaminhado o valor final ao <strong>rank 0</strong> na variável <strong>global_sum</strong>  e a partir  daí houve a impressão do total.</p>
+
+<p>` Calculando Area e Usanso Reduce</p>
+
+<pre><code>    //local_sum = RankCalculaArea(A, B, nDivi, rank, size);
+
+    local_sum = RankCalculaArea(0.0, 1.0, 2000, rank, size);
+
+MPI_Reduce(&amp;local_sum, &amp;global_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    //Imprime o resultado
+
+if (rank == 0) {
+
+    printf("Total sum = %f \n", global_sum);
+
+}
+</code></pre>
+
+<p>`
+*<em>Por que a escolha do MPI_Reduce ao invés do MPI_All_Reduce? *</em></p>
+
+<p>Pois não era necessário que todos os computadores soubessem o valor da integral, já que a impressão só seria feita pelo <strong>rank 0</strong>.</p>
 
 <h3>
 <a id="mutex" class="anchor" href="#mutex" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mutex</h3>
